@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Achilles-safe BarryP triathlon training planner" />
+  <title>BarryP Tri Build</title>
+  <link rel="stylesheet" href="styles.css" />
+
+</head>
+<body>
+  <main class="app">
+    <section class="hero-grid">
+      <div class="hero-card panel">
+        <div class="badges">
+          <span class="badge cyan">BarryP + Tri Build</span>
+          <span class="badge green">Achilles-safe mode</span>
+        </div>
+        <h1>No hero sessions. Just controlled consistency.</h1>
+        <p>A weekly planner for six easy runs, three bike sessions, one leg strength day, one upper strength day, and calf work that supports tendon capacity without burying recovery.</p>
+        <div class="metrics">
+          <div class="metric"><span>Run</span><strong id="metricRun">0 min</strong><small id="metricRunSub">0 sessions</small></div>
+          <div class="metric"><span>Bike</span><strong id="metricBike">0 min</strong><small id="metricBikeSub">0 sessions</small></div>
+          <div class="metric"><span>Strength</span><strong id="metricStrength">0</strong><small>sessions</small></div>
+          <div class="metric"><span>Calf</span><strong id="metricCalf">0</strong><small>planned touches</small></div>
+        </div>
+      </div>
+      <aside class="panel control-card">
+        <h2>Week control</h2>
+        <label>Selected week</label>
+        <div class="week-buttons" id="weekButtons"></div>
+        <label for="bikeLong">Sunday long bike minutes</label>
+        <input id="bikeLong" type="number" min="45" max="240" value="90" />
+        <div class="week-note" id="weekNote"></div>
+      </aside>
+    </section>
+    <nav class="tabs">
+      <button id="tabPlanner" class="active">Planner</button>
+      <button id="tabProgress">Progression</button>
+      <button id="tabRules">Rules</button>
+    </nav>
+    <section id="plannerView">
+      <div class="planner-grid" id="plannerGrid"></div>
+      <div class="actions">
+        <button class="secondary" id="resetLog">Reset log</button>
+        <button class="primary" id="saveLog">Save locally</button>
+      </div>
+    </section>
+    <section id="progressView" style="display:none"></section>
+    <section id="rulesView" style="display:none"></section>
+  </main>
+  <script>
+    const weeks = [
+      { week: 1, short: 12, medium: 24, long: 36, note: 'Start controlled' },
+      { week: 2, short: 14, medium: 28, long: 42, note: 'Small build' },
+      { week: 3, short: 10, medium: 20, long: 30, note: 'Deload' },
+      { week: 4, short: 15, medium: 30, long: 45, note: 'First platform' },
+      { week: 5, short: 16, medium: 32, long: 48, note: 'Hold if Achilles talks' },
+      { week: 6, short: 12, medium: 24, long: 36, note: 'Deload' },
+      { week: 7, short: 18, medium: 36, long: 54, note: 'Controlled build' },
+      { week: 8, short: 20, medium: 40, long: 60, note: 'Key milestone' },
+      { week: 9, short: 16, medium: 32, long: 48, note: 'Deload' },
+      { week: 10, short: 20, medium: 40, long: 60, note: 'Consolidate' },
+      { week: 11, short: 20, medium: 40, long: 60, note: 'Repeat for durability' },
+      { week: 12, short: 16, medium: 32, long: 48, note: 'Deload and reassess' }
+    ];
+    const template = [
+      { day: 'Mon', run: 'Short', bike: '', strength: 'Upper strength', calf: '' },
+      { day: 'Tue', run: 'Medium', bike: 'Bike 1: easy Z2', strength: '', calf: 'Calf A: heavy slow resistance' },
+      { day: 'Wed', run: 'Short', bike: '', strength: 'Leg strength', calf: '' },
+      { day: 'Thu', run: '', bike: 'Bike 2: easy cadence', strength: '', calf: 'Calf B: heavy slow resistance' },
+      { day: 'Fri', run: 'Medium', bike: '', strength: '', calf: '' },
+      { day: 'Sat', run: 'Long', bike: '', strength: '', calf: 'Optional isometric only if calm' },
+      { day: 'Sun', run: 'Short', bike: 'Bike 3: long easy ride', strength: '', calf: '' }
+    ];
+    let selectedWeek = 1;
+    let activeTab = 'planner';
+    let log = loadLog();
+    function loadLog() {
+      try { return JSON.parse(localStorage.getItem('barryp-tri-log')) || {}; }
+      catch { return {}; }
+    }
+    function saveLog() { localStorage.setItem('barryp-tri-log', JSON.stringify(log)); }
+    function runMinutes(week, label) {
+      if (label === 'Short') return week.short;
+      if (label === 'Medium') return week.medium;
+      if (label === 'Long') return week.long;
+      return 0;
+    }
+    function getStatus(entry) {
+      if (!entry) return { label: 'Not logged', className: 'neutral' };
+      const pain = Number(entry.pain || 0);
+      const stiffness = Number(entry.stiffness || 0);
+      if (entry.flare || pain >= 4 || stiffness >= 4) return { label: 'Deload', className: 'red' };
+      if (pain === 3 || stiffness === 3) return { label: 'Repeat week', className: 'amber' };
+      return { label: 'Green', className: 'green' };
+    }
+    function iconFor(type) {
+      if (type === 'run') return '🏃';
+      if (type === 'bike') return '🚴';
+      if (type === 'strength') return '🏋️';
+      if (type === 'calf') return '🦵';
+      return '•';
+    }
+    function weekData() { return weeks.find(w => w.week === selectedWeek); }
+    function rows() {
+      const week = weekData();
+      const bikeLong = Number(document.getElementById('bikeLong').value || 90);
+      return template.map(day => {
+        const key = `${selectedWeek}-${day.day}`;
+        const bikeMin = day.bike.includes('Bike 1') ? 55 : day.bike.includes('Bike 2') ? 55 : day.bike.includes('Bike 3') ? bikeLong : 0;
+        return { ...day, key, entry: log[key], status: getStatus(log[key]), runMin: runMinutes(week, day.run), bikeMin };
+      });
+    }
+    function render() {
+      renderWeekButtons();
+      renderTabs();
+      const week = weekData();
+      document.getElementById('weekNote').textContent = `Week ${week.week}: ${week.short}/${week.medium}/${week.long} minute BarryP ratio. ${week.note}.`;
+      const data = rows();
+      const totals = {
+        run: data.reduce((sum, r) => sum + r.runMin, 0),
+        bike: data.reduce((sum, r) => sum + r.bikeMin, 0),
+        runs: data.filter(r => r.runMin > 0).length,
+        bikes: data.filter(r => r.bikeMin > 0).length,
+        strength: data.filter(r => r.strength).length,
+        calves: data.filter(r => r.calf).length
+      };
+      document.getElementById('metricRun').textContent = `${totals.run} min`;
+      document.getElementById('metricRunSub').textContent = `${totals.runs} sessions`;
+      document.getElementById('metricBike').textContent = `${totals.bike} min`;
+      document.getElementById('metricBikeSub').textContent = `${totals.bikes} sessions`;
+      document.getElementById('metricStrength').textContent = totals.strength;
+      document.getElementById('metricCalf').textContent = totals.calves;
+      if (activeTab === 'planner') renderPlanner(data);
+      if (activeTab === 'progress') renderProgress();
+      if (activeTab === 'rules') renderRules();
+    }
+    function renderWeekButtons() {
+      const el = document.getElementById('weekButtons');
+      el.innerHTML = weeks.map(w => `<button class="week ${w.week === selectedWeek ? 'active' : ''}" data-week="${w.week}">${w.week}</button>`).join('');
+      el.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => { selectedWeek = Number(btn.dataset.week); render(); }));
+    }
+    function renderTabs() {
+      document.getElementById('plannerView').style.display = activeTab === 'planner' ? '' : 'none';
+      document.getElementById('progressView').style.display = activeTab === 'progress' ? '' : 'none';
+      document.getElementById('rulesView').style.display = activeTab === 'rules' ? '' : 'none';
+      document.getElementById('tabPlanner').className = activeTab === 'planner' ? 'active' : '';
+      document.getElementById('tabProgress').className = activeTab === 'progress' ? 'active' : '';
+      document.getElementById('tabRules').className = activeTab === 'rules' ? 'active' : '';
+    }
+    function sessionHtml(type, title, value) {
+      return `<div class="session ${type}"><span class="session-icon">${iconFor(type)}</span><div><strong>${title}</strong><small>${value}</small></div></div>`;
+    }
+    function renderPlanner(data) {
+      const grid = document.getElementById('plannerGrid');
+      grid.innerHTML = data.map(row => {
+        const entry = row.entry || {};
+        const body = [
+          row.runMin > 0 ? sessionHtml('run', `${row.run} run`, `${row.runMin} min easy`) : '',
+          row.bikeMin > 0 ? sessionHtml('bike', row.bike, `${row.bikeMin} min`) : '',
+          row.strength ? sessionHtml('strength', 'Strength', row.strength) : '',
+          row.calf ? sessionHtml('calf', 'Calf', row.calf) : ''
+        ].join('') || '<p class="muted">Recovery focus.</p>';
+        return `<article class="day-card panel">
+          <div class="day-header"><h3>${row.day}</h3><span class="status ${row.status.className}">${row.status.label}</span></div>
+          <div class="session-stack">${body}</div>
+          <div class="log-box">
+            <label>Pain 0-10</label>
+            <input type="number" min="0" max="10" placeholder="0" value="${entry.pain || ''}" data-key="${row.key}" data-field="pain" />
+            <label>Morning stiffness 0-10</label>
+            <input type="number" min="0" max="10" placeholder="0" value="${entry.stiffness || ''}" data-key="${row.key}" data-field="stiffness" />
+            <label class="checkline"><input type="checkbox" ${entry.flare ? 'checked' : ''} data-key="${row.key}" data-field="flare" /> Next-day flare</label>
+          </div>
+        </article>`;
+      }).join('');
+      grid.querySelectorAll('input').forEach(input => {
+        input.addEventListener('change', () => {
+          const key = input.dataset.key;
+          const field = input.dataset.field;
+          log[key] = log[key] || {};
+          log[key][field] = input.type === 'checkbox' ? input.checked : input.value;
+          saveLog();
+          render();
+        });
+      });
+    }
+    function renderProgress() {
+      const maxRun = Math.max(...weeks.map(w => w.short * 3 + w.medium * 2 + w.long));
+      document.getElementById('progressView').innerHTML = `<section class="chart-grid">
+        <div class="panel chart-card"><h2>Weekly run progression</h2><div class="bar-chart">${weeks.map(w => {
+          const total = w.short * 3 + w.medium * 2 + w.long;
+          return `<div class="bar-row"><span>W${w.week}</span><div class="bar-track"><div class="bar ${w.week === selectedWeek ? 'active' : ''}" style="width:${(total / maxRun) * 100}%"></div></div><strong>${total}</strong></div>`;
+        }).join('')}</div></div>
+        <div class="panel chart-card"><h2>Short / medium / long</h2><div class="stacked-list">${weeks.map(w => `<div class="stacked ${w.week === selectedWeek ? 'active' : ''}"><span>W${w.week}</span><div class="stackgroup"><i class="short" style="flex:${w.short}"></i><i class="medium" style="flex:${w.medium}"></i><i class="long" style="flex:${w.long}"></i></div><small>${w.short}/${w.medium}/${w.long}</small></div>`).join('')}</div></div>
+      </section>`;
+    }
+    function renderRules() {
+      document.getElementById('rulesView').innerHTML = `<section class="rules-grid">
+        <article class="panel rule-card green"><h2>Green</h2><p>Pain 0-2/10, no altered stride, no next-day flare. Continue as written.</p></article>
+        <article class="panel rule-card amber"><h2>Amber</h2><p>Pain around 3/10 or morning stiffness rises. Repeat the week. Do not progress.</p></article>
+        <article class="panel rule-card red"><h2>Red</h2><p>Pain 4/10+, limp, sharp pain, swelling, pain at rest, or worsening during a run. Deload and reassess.</p></article>
+        <div class="panel philosophy"><h2>Build philosophy</h2><ul><li>Run frequency first, duration second, speed last.</li><li>Two heavy calf days are enough until the Achilles proves otherwise.</li><li>Bike sessions build fitness without big-gear grinding.</li><li>Leg strength supports the plan, not soreness for the long run.</li><li>Deload weeks are not optional. They are part of the build.</li><li>The progression should be overridden by symptoms, not ego.</li></ul></div>
+      </section>`;
+    }
+    document.getElementById('bikeLong').addEventListener('input', render);
+    document.getElementById('tabPlanner').addEventListener('click', () => { activeTab = 'planner'; render(); });
+    document.getElementById('tabProgress').addEventListener('click', () => { activeTab = 'progress'; render(); });
+    document.getElementById('tabRules').addEventListener('click', () => { activeTab = 'rules'; render(); });
+    document.getElementById('resetLog').addEventListener('click', () => { log = {}; localStorage.removeItem('barryp-tri-log'); render(); });
+    document.getElementById('saveLog').addEventListener('click', saveLog);
+    render();
+  </script>
+</body>
+</html>
