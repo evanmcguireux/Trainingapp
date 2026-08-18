@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BarryP 12 Week Tri Build</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <h1>12 Week Training Planner</h1>
+    <p class="intro">Six easy runs, three bikes, one leg day, one upper day, and calf work paced by Achilles symptoms.</p>
+  </header>
+
+  <main class="container">
+    <section class="controls card">
+      <div>
+        <label for="weekSelect">Select week</label>
+        <select id="weekSelect"></select>
+      </div>
+      <div>
+        <label for="longBike">Sunday long bike minutes</label>
+        <input id="longBike" type="number" min="45" max="240" value="90">
+      </div>
+      <button id="resetButton" type="button">Reset logs</button>
+    </section>
+
+    <section class="summary-grid">
+      <div class="metric card"><span>Run</span><strong id="runTotal">0 min</strong><small id="runSessions">0 sessions</small></div>
+      <div class="metric card"><span>Bike</span><strong id="bikeTotal">0 min</strong><small id="bikeSessions">0 sessions</small></div>
+      <div class="metric card"><span>Strength</span><strong>2</strong><small>sessions</small></div>
+      <div class="metric card"><span>Calf</span><strong>3</strong><small>planned touches</small></div>
+    </section>
+
+    <section class="card week-note">
+      <h2 id="weekTitle">Week 1</h2>
+      <p id="weekDescription"></p>
+    </section>
+
+    <section id="planner" class="planner"></section>
+
+    <section class="card rules">
+      <h2>Progression rules</h2>
+      <div class="rules-grid">
+        <div class="rule green"><strong>Green</strong><p>Pain 0-2, no altered stride, no next-day flare. Continue.</p></div>
+        <div class="rule amber"><strong>Amber</strong><p>Pain 3 or stiffness 3. Repeat the same week.</p></div>
+        <div class="rule red"><strong>Red</strong><p>Pain 4+, limp, swelling, sharp pain, or flare. Deload and reassess.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const weeks = [
+      { week: 1, short: 12, medium: 24, long: 36, note: 'Start controlled' },
+      { week: 2, short: 14, medium: 28, long: 42, note: 'Small build' },
+      { week: 3, short: 10, medium: 20, long: 30, note: 'Deload' },
+      { week: 4, short: 15, medium: 30, long: 45, note: 'First platform' },
+      { week: 5, short: 16, medium: 32, long: 48, note: 'Hold if Achilles talks' },
+      { week: 6, short: 12, medium: 24, long: 36, note: 'Deload' },
+      { week: 7, short: 18, medium: 36, long: 54, note: 'Controlled build' },
+      { week: 8, short: 20, medium: 40, long: 60, note: 'Key milestone' },
+      { week: 9, short: 16, medium: 32, long: 48, note: 'Deload' },
+      { week: 10, short: 20, medium: 40, long: 60, note: 'Consolidate' },
+      { week: 11, short: 20, medium: 40, long: 60, note: 'Repeat for durability' },
+      { week: 12, short: 16, medium: 32, long: 48, note: 'Deload and reassess' }
+    ];
+
+    const days = [
+      { day: 'Mon', run: 'Short', bike: '', strength: 'Upper strength', calf: '' },
+      { day: 'Tue', run: 'Medium', bike: 'Bike 1: easy Zone 2', strength: '', calf: 'Calf A: heavy slow resistance' },
+      { day: 'Wed', run: 'Short', bike: '', strength: 'Leg strength', calf: '' },
+      { day: 'Thu', run: '', bike: 'Bike 2: easy cadence', strength: '', calf: 'Calf B: heavy slow resistance' },
+      { day: 'Fri', run: 'Medium', bike: '', strength: '', calf: '' },
+      { day: 'Sat', run: 'Long', bike: '', strength: '', calf: 'Optional isometrics only if calm' },
+      { day: 'Sun', run: 'Short', bike: 'Bike 3: long easy ride', strength: '', calf: '' }
+    ];
+
+    const weekSelect = document.getElementById('weekSelect');
+    const longBike = document.getElementById('longBike');
+    const planner = document.getElementById('planner');
+    let logs = JSON.parse(localStorage.getItem('barrypLogs') || '{}');
+
+    weeks.forEach(w => {
+      const option = document.createElement('option');
+      option.value = w.week;
+      option.textContent = 'Week ' + w.week;
+      weekSelect.appendChild(option);
+    });
+
+    function runMinutes(week, type) {
+      if (type === 'Short') return week.short;
+      if (type === 'Medium') return week.medium;
+      if (type === 'Long') return week.long;
+      return 0;
+    }
+
+    function getStatus(entry) {
+      if (!entry) return { text: 'Not logged', className: 'neutral' };
+      const pain = Number(entry.pain || 0);
+      const stiff = Number(entry.stiff || 0);
+      if (entry.flare || pain >= 4 || stiff >= 4) return { text: 'Deload', className: 'red' };
+      if (pain === 3 || stiff === 3) return { text: 'Repeat week', className: 'amber' };
+      return { text: 'Green', className: 'green' };
+    }
+
+    function saveLog(key, field, value) {
+      logs[key] = logs[key] || {};
+      logs[key][field] = value;
+      localStorage.setItem('barrypLogs', JSON.stringify(logs));
+      render();
+    }
+
+    function render() {
+      const selected = Number(weekSelect.value || 1);
+      const week = weeks.find(w => w.week === selected);
+      const bikeLong = Number(longBike.value || 90);
+
+      document.getElementById('weekTitle').textContent = 'Week ' + week.week;
+      document.getElementById('weekDescription').textContent = `${week.short}/${week.medium}/${week.long} minute BarryP ratio. ${week.note}.`;
+
+      let runTotal = 0;
+      let bikeTotal = 0;
+      let runSessions = 0;
+      let bikeSessions = 0;
+
+      planner.innerHTML = '';
+
+      days.forEach(item => {
+        const key = `${week.week}-${item.day}`;
+        const entry = logs[key];
+        const status = getStatus(entry);
+        const run = runMinutes(week, item.run);
+        const bike = item.bike.includes('Bike 1') ? 55 : item.bike.includes('Bike 2') ? 55 : item.bike.includes('Bike 3') ? bikeLong : 0;
+
+        if (run > 0) { runTotal += run; runSessions += 1; }
+        if (bike > 0) { bikeTotal += bike; bikeSessions += 1; }
+
+        const card = document.createElement('article');
+        card.className = 'day card';
+        card.innerHTML = `
+          <div class="day-header">
+            <h3>${item.day}</h3>
+            <span class="status ${status.className}">${status.text}</span>
+          </div>
+          <div class="sessions">
+            ${run ? `<p><b>Run:</b> ${item.run} ${run} min easy</p>` : ''}
+            ${bike ? `<p><b>Bike:</b> ${item.bike} ${bike} min</p>` : ''}
+            ${item.strength ? `<p><b>Strength:</b> ${item.strength}</p>` : ''}
+            ${item.calf ? `<p><b>Calf:</b> ${item.calf}</p>` : ''}
+          </div>
+          <div class="log">
+            <label>Pain 0-10</label>
+            <input type="number" min="0" max="10" value="${entry?.pain || ''}" data-field="pain">
+            <label>Morning stiffness 0-10</label>
+            <input type="number" min="0" max="10" value="${entry?.stiff || ''}" data-field="stiff">
+            <label class="check"><input type="checkbox" ${entry?.flare ? 'checked' : ''} data-field="flare"> Next-day flare</label>
+          </div>
+        `;
+
+        card.querySelectorAll('input').forEach(input => {
+          input.addEventListener('change', () => {
+            const field = input.dataset.field;
+            saveLog(key, field, input.type === 'checkbox' ? input.checked : input.value);
+          });
+        });
+
+        planner.appendChild(card);
+      });
+
+      document.getElementById('runTotal').textContent = runTotal + ' min';
+      document.getElementById('bikeTotal').textContent = bikeTotal + ' min';
+      document.getElementById('runSessions').textContent = runSessions + ' sessions';
+      document.getElementById('bikeSessions').textContent = bikeSessions + ' sessions';
+    }
+
+    weekSelect.addEventListener('change', render);
+    longBike.addEventListener('change', render);
+    document.getElementById('resetButton').addEventListener('click', () => {
+      logs = {};
+      localStorage.removeItem('barrypLogs');
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
