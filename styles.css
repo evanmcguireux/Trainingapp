@@ -1,0 +1,76 @@
+/* TriBuild app shell CSS
+   Most visual styling is done with Tailwind utility classes in the HTML.
+   This file holds shared app-level polish, mobile behaviour, focus states and user preferences. */
+
+:root {
+  --tb-bg: #0b0d0f;
+  --tb-panel: #202428;
+  --tb-orange: #ff6b2b;
+  --tb-text: #ffffff;
+  --tb-muted: #9ca3af;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--tb-bg);
+}
+
+body {
+  min-height: 100vh;
+  background: var(--tb-bg);
+}
+
+button,
+a,
+select,
+input,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid rgba(255, 107, 43, 0.55);
+  outline-offset: 3px;
+}
+
+input,
+select,
+textarea {
+  color-scheme: dark;
+}
+
+/* Mobile safe-area support for modern phones */
+main {
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+}
+
+nav[aria-label="Mobile navigation"],
+.fixed.inset-x-0.bottom-4 {
+  margin-bottom: env(safe-area-inset-bottom);
+}
+
+/* Slightly smoother card/button interaction without introducing heavy animation */
+.transition,
+a,
+button {
+  transition-duration: 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
