@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config={theme:{extend:{fontFamily:{sans:["Inter","ui-sans-serif","system-ui","-apple-system","BlinkMacSystemFont","Segoe UI","Arial","sans-serif"]}}}}
+  </script>
+  <title>Trend</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="progress" class="bg-black text-white antialiased">
+  <main class="mx-auto min-h-screen w-[min(430px,100%)] bg-[#050505] pb-28 text-white">
+    <header class="px-5 pt-7">
+      <div class="flex items-center justify-between gap-4">
+        <div>
+          <p class="text-xs font-black uppercase tracking-wider text-[#fc4c02]">Dashboard</p>
+          <h1 class="mt-2 text-4xl font-black tracking-[-.06em]">Progress</h1>
+          <p class="mt-2 max-w-[310px] text-sm leading-5 text-zinc-400">Track the discipline trend that matters now. No streaks, just training signal.</p>
+        </div>
+        <button class="grid h-14 w-14 touch-manipulation place-items-center rounded-full bg-[#171717] text-white shadow-[0_18px_45px_rgba(0,0,0,.55)] ring-1 ring-white/10 transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-[#fc4c02]/70 active:scale-95" aria-label="Trend settings">
+          <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="px-5 pt-6">
+      <article class="rounded-[30px] bg-[#161616] p-5 shadow-[0_22px_70px_rgba(0,0,0,.50)] ring-1 ring-white/5">
+        <div class="mb-6 flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-black uppercase tracking-wider text-zinc-500">Discipline</p>
+            <h2 id="trendFocusTitle" class="mt-1 text-3xl font-black tracking-[-.04em]">Running</h2>
+          </div>
+          <span id="trendStatusPill" class="rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-zinc-300">Base</span>
+        </div>
+
+        <div class="mb-7 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+          <button data-discipline="run" class="discipline-tab flex min-h-12 shrink-0 touch-manipulation items-center gap-2 rounded-full border border-[#fc4c02] px-4 text-base font-semibold text-[#fc4c02] transition hover:bg-[#fc4c02]/10 focus:outline-none focus:ring-2 focus:ring-[#fc4c02]/70 active:scale-[.98]">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4v5l4 3"></path><path d="m8 8 2-3 3 1"></path><path d="m9 17-2 3"></path><path d="m14 17 3 3"></path><path d="M9 12h5"></path></svg>Run
+          </button>
+          <button data-discipline="bike" class="discipline-tab flex min-h-12 shrink-0 touch-manipulation items-center gap-2 rounded-full border border-white/30 px-4 text-base font-semibold text-zinc-300 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#fc4c02]/70 active:scale-[.98]">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"></circle><circle cx="18.5" cy="17.5" r="3.5"></circle><path d="M15 6h3l-3 7H9"></path><path d="m9 13-2-4H4"></path><path d="m9 13-3.5 4.5"></path><path d="M15 13l3.5 4.5"></path></svg>Bike
+          </button>
+          <button data-discipline="swim" class="discipline-tab flex min-h-12 shrink-0 touch-manipulation items-center gap-2 rounded-full border border-white/30 px-4 text-base font-semibold text-zinc-300 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#fc4c02]/70 active:scale-[.98]">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1 2-1 4-1"></path><path d="M2 22c2 0 2-1 4-1s2 1 4 1 2-1 4-1 2 1 4 1 2-1 4-1"></path><path d="M15 9a3 3 0 1 0-3-3"></path><path d="M12 6 7 11l5 2 4-4"></path></svg>Swim
+          </button>
+          <button data-discipline="strength" class="discipline-tab flex min-h-12 shrink-0 touch-manipulation items-center gap-2 rounded-full border border-white/30 px-4 text-base font-semibold text-zinc-300 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#fc4c02]/70 active:scale-[.98]">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5"></path><path d="M21 21 3 3"></path><path d="M14 5a3 3 0 0 1 5 2.2"></path><path d="M5 14a3 3 0 0 0 2.2 5"></path></svg>Strength
+          </button>
+        </div>
+
+        <h3 class="text-3xl font-black tracking-[-.04em]">This week</h3>
+        <div class="mt-5 grid grid-cols-3 gap-4">
+          <div><p id="metricOneLabel" class="text-base text-zinc-300">Distance</p><p id="metricOneValue" class="mt-1 text-3xl font-black tracking-tight">0 km</p></div>
+          <div><p id="metricTwoLabel" class="text-base text-zinc-300">Time</p><p id="metricTwoValue" class="mt-1 text-3xl font-black tracking-tight">0m</p></div>
+          <div><p id="metricThreeLabel" class="text-base text-zinc-300">Load</p><p id="metricThreeValue" class="mt-1 text-3xl font-black tracking-tight">0</p></div>
+        </div>
+
+        <div class="mt-8">
+          <div class="mb-4 flex items-center justify-between">
+            <p class="text-lg font-medium text-zinc-200">Past 12 weeks</p>
+            <p id="trendUnit" class="text-sm font-semibold text-zinc-400">minutes</p>
+          </div>
+          <div id="disciplineChart" class="relative h-[255px] rounded-[24px] bg-[#111111] p-4 ring-1 ring-white/5"></div>
+        </div>
+      </article>
+
+      <section class="mt-5 grid grid-cols-2 gap-3">
+        <article class="rounded-[28px] bg-[#161616] p-5 shadow-[0_22px_70px_rgba(0,0,0,.50)] ring-1 ring-white/5">
+          <span class="text-xs font-black uppercase tracking-wider text-zinc-500">Consistency</span>
+          <strong id="consistencyValue" class="mt-7 block text-5xl font-black tracking-tight">0%</strong>
+          <p class="mt-2 text-sm leading-5 text-zinc-400">planned sessions completed</p>
+        </article>
+        <article class="rounded-[28px] bg-[#161616] p-5 shadow-[0_22px_70px_rgba(0,0,0,.50)] ring-1 ring-white/5">
+          <span class="text-xs font-black uppercase tracking-wider text-zinc-500">Load response</span>
+          <strong id="loadResponseValue" class="mt-7 block text-3xl font-black tracking-tight">Not logged</strong>
+          <p id="loadResponseHint" class="mt-2 text-sm leading-5 text-zinc-400">Log pain and stiffness to populate this.</p>
+        </article>
+      </section>
+
+      <section class="mt-5 grid gap-3">
+        <article class="rounded-[28px] bg-[#161616] p-5 shadow-[0_22px_70px_rgba(0,0,0,.50)] ring-1 ring-white/5">
+          <span class="text-xs font-black uppercase tracking-wider text-zinc-500">Useful next metric</span>
+          <h3 class="mt-2 text-2xl font-black tracking-tight">Planned vs completed</h3>
+          <p class="mt-2 text-sm leading-5 text-zinc-400">Shows whether the plan is realistic without pushing into overload.</p>
+        </article>
+        <article class="rounded-[28px] bg-[#161616] p-5 shadow-[0_22px_70px_rgba(0,0,0,.50)] ring-1 ring-white/5">
+          <span class="text-xs font-black uppercase tracking-wider text-zinc-500">Useful next metric</span>
+          <h3 class="mt-2 text-2xl font-black tracking-tight">Achilles response trend</h3>
+          <p class="mt-2 text-sm leading-5 text-zinc-400">Compare pain and stiffness against run volume to catch load spikes early.</p>
+        </article>
+      </section>
+    </section>
+
+    <nav aria-label="Mobile navigation" class="fixed inset-x-0 bottom-4 z-50 mx-auto grid w-[min(390px,calc(100%-28px))] grid-cols-5 gap-1 rounded-full bg-[#202428]/95 p-2 shadow-[0_20px_70px_rgba(0,0,0,.55)] ring-1 ring-white/10 backdrop-blur">
+      <a data-nav="home" href="index.html" class="group flex min-h-12 touch-manipulation flex-col items-center justify-center rounded-full text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#fc4c02]/60 active:scale-95">⌂<span class="mt-0.5">Home</span></a>
+      <a data-nav="plan" href="plan.html" class="group flex min-h-12 touch-manipulation flex-col items-center justify-center rounded-full text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#fc4c02]/60 active:scale-95">◷<span class="mt-0.5">Plan</span></a>
+      <a data-nav="log" href="log.html" class="-mt-5 flex min-h-14 touch-manipulation flex-col items-center justify-center rounded-full bg-[#fc4c02] text-xs font-black text-white shadow-[0_16px_35px_rgba(252,76,2,.35)] transition hover:bg-[#ff6b2b] focus:outline-none focus:ring-2 focus:ring-[#fc4c02]/70 active:scale-95">＋<span class="mt-0.5">Log</span></a>
+      <a data-nav="strength" href="strength.html" class="group flex min-h-12 touch-manipulation flex-col items-center justify-center rounded-full text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#fc4c02]/60 active:scale-95">◴<span class="mt-0.5">Strength</span></a>
+      <a data-nav="progress" href="progress.html" class="group flex min-h-12 touch-manipulation flex-col items-center justify-center rounded-full text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#fc4c02]/60 active:scale-95">◎<span class="mt-0.5">Trend</span></a>
+    </nav>
+    <script src="app.js"></script>
+  </main>
+</body>
+</html>
