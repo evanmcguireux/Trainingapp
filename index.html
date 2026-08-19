@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config={theme:{extend:{fontFamily:{sans:["Inter","ui-sans-serif","system-ui","-apple-system","BlinkMacSystemFont","Segoe UI","Arial","sans-serif"]}}}}
+  </script>
+  <title>TriBuild Home</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="home" class="bg-[#0b0d0f] text-white antialiased">
+  <main class="mx-auto min-h-screen w-[min(430px,100%)] overflow-hidden bg-[#111417] pb-28">
+    <section class="relative overflow-hidden rounded-b-[42px] bg-[radial-gradient(circle_at_35%_20%,rgba(255,107,43,.26),transparent_34%),linear-gradient(180deg,#22272b_0%,#111417_82%)] px-6 pb-7 pt-10 shadow-[0_32px_80px_rgba(0,0,0,.42)]">
+      <div class="absolute inset-0 opacity-30 bg-[linear-gradient(135deg,transparent_0_35%,rgba(255,255,255,.08)_35%_38%,transparent_38%_100%)]"></div>
+      <div class="relative z-10">
+        <p class="text-xs font-black uppercase tracking-wider text-[#ff6b2b]">Today</p>
+        <h1 id="todayTitle" class="mt-3 text-5xl font-black uppercase tracking-[-.07em]">Today</h1>
+        <p id="todayDetail" class="mt-3 max-w-[320px] text-base leading-6 text-zinc-300">Loading today’s session.</p>
+        <a href="log.html" class="mt-7 flex min-h-16 w-full touch-manipulation items-center justify-center gap-3 rounded-full bg-[#ff6b2b] text-lg font-black text-white shadow-[0_18px_35px_rgba(255,107,43,.35)] transition hover:bg-[#ff7a3d] focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/70 active:scale-[.97]">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+          Log today
+        </a>
+      </div>
+    </section>
+
+    <section class="space-y-4 px-5 pt-5">
+      <article id="readyCard" class="rounded-[28px] bg-[#202428] p-5 shadow-[0_22px_70px_rgba(0,0,0,.34)] ring-1 ring-white/5">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <span class="text-xs font-black uppercase tracking-wider text-zinc-500">Readiness</span>
+            <strong id="readyText" class="mt-2 block text-3xl font-black tracking-tight">Not logged</strong>
+            <p id="readyHint" class="mt-1 text-sm leading-5 text-zinc-400">Log today to guide tomorrow.</p>
+          </div>
+          <span id="readyPill" class="inline-flex rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-zinc-300">Not logged</span>
+        </div>
+      </article>
+
+      <article id="recommendationCard" class="rounded-[28px] bg-[#202428] p-5 shadow-[0_22px_70px_rgba(0,0,0,.34)] ring-1 ring-white/5">
+        <span class="text-xs font-black uppercase tracking-wider text-zinc-500">Progress recommendation</span>
+        <strong id="recommendationText" class="mt-2 block text-3xl font-black tracking-tight">Log today</strong>
+        <p id="recommendationHint" class="mt-1 text-sm leading-5 text-zinc-400">The app will suggest progress, repeat or deload.</p>
+      </article>
+
+      <article class="rounded-[28px] bg-[#202428] p-5 shadow-[0_22px_70px_rgba(0,0,0,.34)] ring-1 ring-white/5">
+        <div class="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-black uppercase tracking-wider text-zinc-500">Today’s session detail</span>
+            <h2 class="mt-1 text-2xl font-black tracking-tight">What is planned</h2>
+          </div>
+          <span id="todayLogStatus" class="rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-zinc-300">Not logged</span>
+        </div>
+        <div id="todaySessionList" class="grid gap-3"></div>
+      </article>
+
+      <article class="rounded-[28px] bg-[#202428] p-5 shadow-[0_22px_70px_rgba(0,0,0,.34)] ring-1 ring-white/5">
+        <span class="text-xs font-black uppercase tracking-wider text-zinc-500">After logging</span>
+        <div id="todayLoggedSummary" class="mt-3 grid gap-2 text-sm text-zinc-400">No log saved for today yet.</div>
+      </article>
+    </section>
+
+    <nav aria-label="Mobile navigation" class="fixed inset-x-0 bottom-4 z-50 mx-auto grid w-[min(390px,calc(100%-28px))] grid-cols-5 gap-1 rounded-full bg-[#202428]/95 p-2 shadow-[0_20px_70px_rgba(0,0,0,.55)] ring-1 ring-white/10 backdrop-blur">
+      <a data-nav="home" href="index.html" class="group flex min-h-12 touch-manipulation flex-col items-center justify-center rounded-full text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/60 active:scale-95"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg><span class="mt-0.5">Home</span></a>
+      <a data-nav="plan" href="plan.html" class="group flex min-h-12 touch-manipulation flex-col items-center justify-center rounded-full text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/60 active:scale-95"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M3 10h18"></path></svg><span class="mt-0.5">Plan</span></a>
+      <a data-nav="log" href="log.html" class="-mt-5 flex min-h-14 touch-manipulation flex-col items-center justify-center rounded-full bg-[#ff6b2b] text-xs font-black text-white shadow-[0_16px_35px_rgba(255,107,43,.35)] transition hover:bg-[#ff7a3d] focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/70 active:scale-95"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg><span class="mt-0.5">Log</span></a>
+      <a data-nav="strength" href="strength.html" class="group flex min-h-12 touch-manipulation flex-col items-center justify-center rounded-full text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/60 active:scale-95"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 6.5 17.5 17.5"></path><path d="M21 21 3 3"></path><path d="M14 5a3 3 0 0 1 5 2.2"></path><path d="M5 14a3 3 0 0 0 2.2 5"></path></svg><span class="mt-0.5">Strength</span></a>
+      <a data-nav="progress" href="progress.html" class="group flex min-h-12 touch-manipulation flex-col items-center justify-center rounded-full text-xs font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#ff6b2b]/60 active:scale-95"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"></path><path d="m7 14 4-4 3 3 5-6"></path></svg><span class="mt-0.5">Trend</span></a>
+    </nav>
+    <script src="app.js"></script>
+  </main>
+</body>
+</html>
